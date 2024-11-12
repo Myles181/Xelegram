@@ -1,0 +1,1 @@
+// mongodb+srv://myAppUser:<db_password>@cluster0.nymrd.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
