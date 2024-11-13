@@ -4,8 +4,10 @@
   "description": "Telegram web app clone to allow sending of text messages, voice notes, making of voice calls and video calls",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon index.js"
+    "client-install": "npm install --prefix client",
+    "client-build": "npm run build --prefix client",
+    "build": "npm run client-install && npm run client-build",
+    "start": "nodemon server.js"
   },
   "repository": {
     "type": "git",
