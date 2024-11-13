@@ -1,7 +1,7 @@
 import { useSelector } from "react-redux";
 import { io } from "socket.io-client";
 
-const socket = io();
+const socket = io("https://xelegram.onrender.com");
 
 const useSocket = () => {
   const userId = useSelector((state) => state.userReducer.user._id);
