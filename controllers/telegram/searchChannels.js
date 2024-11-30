@@ -1,11 +1,15 @@
-export const searchChannels = async (req, res) => {
+const { Api, TelegramClient } = require("telegram");
+const { StringSession } = require("telegram/sessions");
+
+
+const searchChannels = async (req, res) => {
     try {
         const { sessionString, searchQuery } = req.body;
         
         const stringSession = new StringSession(sessionString);
         const client = new TelegramClient(stringSession, 
-            process.env.TELEGRAM_API_ID, 
-            process.env.TELEGRAM_API_HASH
+            process.env.TELEGRAM_APP_ID, 
+            process.env.TELEGRAM_APP_HASH
         );
 
         await client.connect();
@@ -64,3 +68,5 @@ export const searchChannels = async (req, res) => {
         });
     }
 };
+
+module.exports = {searchChannels};
