@@ -1,6 +1,6 @@
 {
   "name": "client",
-  "proxy": "http://localhost:4000",
+  "proxy": "http://localhost:5501",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -22,6 +22,7 @@
     "react-scripts": "5.0.1",
     "simple-peer": "^9.11.1",
     "socket.io-client": "^4.5.3",
+    "telegram-clone": "file:..",
     "web-vitals": "^2.1.4",
     "yup": "^0.32.11"
   },

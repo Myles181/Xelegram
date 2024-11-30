@@ -16,8 +16,8 @@ module.exports = {
     },
     extend: {
       colors: {
-        primary: "var(--bg-primary)",
-        secondary: "var(--bg-secondary)",
+        // primary: "var(--bg-primary)",
+        // secondary: "var(--bg-secondary)",
         "cta-icon": "var(--bg-cta-icon)",
         "message-highlight": "var(--bg-message-highlight)",
         message: "var(--bg-message)",
@@ -32,12 +32,50 @@ module.exports = {
         modal: "var(--bg-modal)",
         send: "var(--bg-send)",
         "message-status": "var(--message-status)",
-        border: "var(--border)",
+        // border: "var(--border)",
         search: "var(--bg-search)",
         "search-border": "var(--border-search)",
         "recorder-icon": "var(--recorder-icon)",
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
+        primary: {
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
+        },
+        secondary: {
+          DEFAULT: "hsl(var(--secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
+        },
+        destructive: {
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
+        },
+        muted: {
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
+        },
+        accent: {
+          DEFAULT: "hsl(var(--accent))",
+          foreground: "hsl(var(--accent-foreground))",
+        },
+        popover: {
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
+        },
+        card: {
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
+        },
+      },
+      borderRadius: {
+        lg: `var(--radius)`,
+        md: `calc(var(--radius) - 2px)`,
+        sm: "calc(var(--radius) - 4px)",
       },
     },
   },
-  plugins: [],
+  plugins: [require("tailwindcss-animate")],
 };

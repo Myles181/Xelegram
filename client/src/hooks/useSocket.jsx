@@ -3,9 +3,10 @@ import { useSelector } from "react-redux";
 import { io } from "socket.io-client";
 
 // Determine base URL based on environment
-const BASE_URL = process.env.NODE_ENV === "production"
-  ? "https://xelegram.onrender.com"
-  : "http://localhost:4000";  // Use the local server URL for development
+const BASE_URL =
+  process.env.NODE_ENV === "production"
+    ? "https://xelegram.onrender.com"
+    : "http://localhost:5501";
 
 // Create socket instance lazily inside the hook
 const useSocket = () => {
