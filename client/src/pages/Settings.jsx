@@ -57,7 +57,7 @@ function Settings() {
             />
           </svg>
         </IconWrapper>
-        <h2 className="text-[2rem] font-semibold ml-[3rem]">Settings</h2>
+        <h2 className="text-[2rem] font-semibold ml-[3rem]">Sdddettings</h2>
         <IconWrapper
           onClick={() =>
             dispatch(

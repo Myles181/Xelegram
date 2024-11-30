@@ -7,9 +7,9 @@ const messageUser = async (req, res) => {
         const { sessionString, destination, messageText } = req.body;
         
         // Recreate client with saved session
-        const stringSession = new StringSession(sessionString);
-        const client = new TelegramClient(stringSession, 
-            process.env.TELEGRAM_APP_ID, 
+        const session = new StringSession(sessionString);
+        const client = new TelegramClient(session, 
+            Number(process.env.TELEGRAM_APP_ID), 
             process.env.TELEGRAM_APP_HASH
         );
 

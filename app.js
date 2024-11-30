@@ -47,6 +47,7 @@ app.use("/api/user", authRouter);
 app.use("/api/*", (req, res, next) => {
   if (!req.cookies.userId)
     return next(new ReqError(400, "You are not logged in"));
+  
 
   next();
 });
