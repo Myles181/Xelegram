@@ -5,7 +5,13 @@ const mongoose = require("mongoose");
 
 const app = require("./app");
 
-dotenv.config({ path: "./.env" });
+const dotenvPath = path.join(__dirname, ".env");
+dotenv.config({ path: dotenvPath });
+
+
+console.log(process.env)
+console.log("API_ID:", process.env.TELEGRAM_APP_ID);
+console.log("API_HASH:", process.env.TELEGRAM_APP_HASH);
 
 // Set the strictQuery option before connecting to the database
 mongoose.set('strictQuery', false);

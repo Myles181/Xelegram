@@ -1,12 +1,16 @@
-export const messageUser = async (req, res) => {
+const { Api, TelegramClient } = require("telegram");
+const { StringSession } = require("telegram/sessions");
+
+
+const messageUser = async (req, res) => {
     try {
         const { sessionString, destination, messageText } = req.body;
         
         // Recreate client with saved session
         const stringSession = new StringSession(sessionString);
         const client = new TelegramClient(stringSession, 
-            process.env.TELEGRAM_API_ID, 
-            process.env.TELEGRAM_API_HASH
+            process.env.TELEGRAM_APP_ID, 
+            process.env.TELEGRAM_APP_HASH
         );
 
         // Connect to Telegram
@@ -27,3 +31,5 @@ export const messageUser = async (req, res) => {
         });
     }
 };
+
+module.exports = {messageUser};
