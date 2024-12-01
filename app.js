@@ -56,17 +56,28 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 
 // CORS Configuration
-const corsOptions = {
-  origin: ["http://localhost:3000", "https://xelegram.onrender.com", "http://localhost:5501"], // Allowed origins
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Include OPTIONS method for preflight requests
-  allowedHeaders: ["Content-Type", "Authorization"], // Allowed request headers
-  credentials: true, // Allow cookies to be sent
-  preflightContinue: false, // Disable preflight continuation
-  optionsSuccessStatus: 204, // Return a 204 status for successful OPTIONS requests
-};
+app.use(cors({
+  origin: function (origin, callback) {
+    const allowedOrigins = [
+      'http://localhost:3000', 
+      'https://xelegram.onrender.com', 
+      'http://localhost:5501'
+    ];
+    
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+  optionsSuccessStatus: 204
+}));
 
-// Apply CORS middleware
-app.use(cors(corsOptions));
+// Specific handler for preflight requests
+app.options('*', cors());
 
 // Middleware
 app.use(express.json({ limit: "50mb" }));
