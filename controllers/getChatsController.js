@@ -26,20 +26,64 @@ const getTelegramChats = async (sessionString) => {
         );
 
         // Process chats and users
-        const processedChats = dialogsResult.chats.map(chat => ({
-            chatRoomId: chat.id.toString(),
-            username: chat.title || chat.username,
-            profileImage: chat.photo?.photo_big || null,
-            type: chat.className, // 'Chat', 'Channel', etc.
+        const processedChats = await Promise.all(dialogsResult.chats.map(async (chat) => {
+            let isMember = true;
+            let numOfParticipants = 0;
+
+            // Check membership for groups and channels
+            if (chat.className === 'Channel' || chat.className === 'Chat') {
+                try {
+                    const chatFullInfo = await client.invoke(
+                        new Api.channels.GetFullChannel({
+                            channel: chat
+                        })
+                    );
+                    numOfParticipants = chatFullInfo.fullChat.participantsCount;
+                    
+                    // Check if the current user is a member
+                    try {
+                        const testMessages = await client.invoke(
+                            new Api.messages.GetHistory({
+                                peer: chat,
+                                limit: 1,
+                                offsetId: 0,
+                                offsetDate: 0,
+                                addOffset: 0,
+                                hash: BigInt(0)
+                            })
+                        );
+                        isMember = testMessages.messages.length > 0;
+                    } catch {
+                        // If getting messages fails, use alternative membership check
+                        isMember = false;
+                    }
+                } catch (error) {
+                    isMember = false;
+                    let numberParticipants = 0;
+                    console.error(`Error checking membership for ${chat.title}:`, error);
+                }
+            }
+
+            return {
+                chatRoomId: chat.id.toString(),
+                title: chat.title,
+                username: chat.username,
+                profileImage: chat.photo?.photo_big,
+                type: chat.className,
+                numOfParticipants: numOfParticipants,
+                isMember: isMember
+            };
         }));
 
         const processedUsers = dialogsResult.users
             .filter(user => user.id !== client.session.userId) // Exclude self
             .map(user => ({
                 chatRoomId: user.id.toString(),
-                username: user.username || `${user.firstName} ${user.lastName}`.trim(),
-                profileImage: user.photo?.photo_big || null,
+                title: `${user.firstName} ${user.lastName}`.trim(),
+                username: user.username,
+                profileImage: user.photo?.photo_big,
                 type: 'User',
+                isMember: true // Always true for direct user chats
             }));
 
         // Combine and deduplicate
@@ -68,10 +112,9 @@ const getTelegramChats = async (sessionString) => {
     }
 };
 
-// Express endpoint
+// Express endpoint remains the same
 const telegramChatsEndpoint = async (req, res) => {
     try {
-        // Retrieve session from cookies
         const { sessionString } = req.body;
 
         if (!sessionString) {
@@ -85,12 +128,15 @@ const telegramChatsEndpoint = async (req, res) => {
         res.json({
             chatList: chats.map(chat => ({
                 chatRoomId: chat.chatRoomId,
+                title: chat.title,
                 username: chat.username,
                 profileImage: chat.profileImage,
                 type: chat.type,
-                unreadMessagesCount: 0, // You might want to fetch this separately
-                latestMessage: {}, // You can fetch latest message details if needed
-                pinned: false // Default unpinned
+                numOfParticipants: chat.numOfParticipants,
+                isMember: chat.isMember,
+                unreadMessagesCount: 0,
+                latestMessage: {},
+                pinned: false
             }))
         });
     } catch (error) {

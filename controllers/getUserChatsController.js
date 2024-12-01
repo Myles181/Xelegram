@@ -2,12 +2,12 @@ const { Api, TelegramClient } = require("telegram");
 const { StringSession } = require("telegram/sessions");
 
 const getUserMessages = async (req, res) => {
+    let client;
     try {
         // Extract parameters from request body
         const { 
             sessionString, 
             userUsername, 
-            messageIds = [], 
             limit = 100,  // Default limit if not specified
             offset = 0    // Optional offset for pagination
         } = req.body;
@@ -26,7 +26,7 @@ const getUserMessages = async (req, res) => {
 
         // Create session and client
         const session = new StringSession(sessionString);
-        const client = new TelegramClient(
+        client = new TelegramClient(
             session, 
             Number(process.env.TELEGRAM_APP_ID), 
             process.env.TELEGRAM_APP_HASH, 
@@ -36,18 +36,30 @@ const getUserMessages = async (req, res) => {
         // Connect to Telegram
         await client.connect();
 
-        // Get the user entity
-        const user = await client.getEntity(userUsername);
+        // Resolve the user using contacts.ResolveUsername
+        const resolvedUser = await client.invoke(
+            new Api.contacts.ResolveUsername({
+                username: userUsername.replace('@', '')
+            })
+        );
 
-        // Fetch user messages
+        // Check if user is found
+        if (!resolvedUser.peer) {
+            return res.status(404).json({ 
+                message: 'User not found' 
+            });
+        }
+
+        // Fetch user messages using messages.GetHistory
         const result = await client.invoke(
             new Api.messages.GetHistory({
-                peer: user,
+                peer: resolvedUser.peer,
+                offsetId: 0,
+                addOffset: offset,
                 limit: limit,
-                offsetId: offset,
-                minId: 0,
                 maxId: 0,
-                addOffset: 0,
+                minId: 0,
+                hash: BigInt(0)
             })
         );
 
@@ -74,6 +86,11 @@ const getUserMessages = async (req, res) => {
             message: 'Failed to retrieve user messages', 
             error: error.message 
         });
+    } finally {
+        // Ensure client disconnection
+        if (client) {
+            await client.disconnect();
+        }
     }
 };
 

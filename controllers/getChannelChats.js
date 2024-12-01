@@ -1,5 +1,6 @@
 const { Api, TelegramClient } = require("telegram");
 const { StringSession } = require("telegram/sessions");
+const { getInputChannel } = require('telegram/Utils');
 
 const getChannelMessages = async (req, res) => {
     try {
@@ -7,7 +8,6 @@ const getChannelMessages = async (req, res) => {
         const { 
             sessionString, 
             channelUsername, 
-            messageIds = [], 
             limit = 100,  // Default limit if not specified
             offset = 0    // Optional offset for pagination
         } = req.body;
@@ -36,13 +36,30 @@ const getChannelMessages = async (req, res) => {
         // Connect to Telegram
         await client.connect();
 
-        // Fetch channel messages
+        // Resolve the input channel
+        const resolvedChannel = await client.invoke(
+            new Api.contacts.ResolveUsername({
+                username: channelUsername.replace('@', '')
+            })
+        );
+
+        // Check if channel is found
+        if (!resolvedChannel.peer) {
+            return res.status(404).json({ 
+                message: 'Channel not found' 
+            });
+        }
+
+        // Fetch channel messages using messages.getHistory
         const result = await client.invoke(
-            new Api.channels.GetMessages({
-                channel: channelUsername,
-                id: messageIds.length > 0 ? messageIds : undefined,
+            new Api.messages.GetHistory({
+                peer: resolvedChannel.peer,
+                offsetId: 0,
+                addOffset: offset,
                 limit: limit,
-                offsetId: offset
+                maxId: 0,
+                minId: 0,
+                hash: BigInt(0)
             })
         );
 
@@ -51,6 +68,7 @@ const getChannelMessages = async (req, res) => {
             id: message.id,
             message: message.message,
             date: message.date,
+            fromId: message.fromId,
             // Add more fields as needed
             // Be careful with sensitive information
         }));
@@ -70,7 +88,6 @@ const getChannelMessages = async (req, res) => {
     }
 };
 
-// Additional optional endpoints could include:
 const getChannelInfo = async (req, res) => {
     try {
         const { sessionString, channelUsername } = req.body;
@@ -84,34 +101,66 @@ const getChannelInfo = async (req, res) => {
 
         const session = new StringSession(sessionString);
         const client = new TelegramClient(
-            session, 
-            Number(process.env.TELEGRAM_APP_ID), 
-            process.env.TELEGRAM_APP_HASH, 
+            session,
+            Number(process.env.TELEGRAM_APP_ID),
+            process.env.TELEGRAM_APP_HASH,
             { connectionRetries: 5 }
         );
 
         await client.connect();
 
-        // Resolve channel entity
-        const channel = await client.getEntity(channelUsername);
+        let channel;
+        try {
+            // Try resolving the channel by username
+            channel = await client.getEntity(channelUsername);
+        } catch (resolveError) {
+            console.error('Error resolving channel:', resolveError.message);
+            return res.status(404).json({ 
+                message: `Could not resolve channel: ${channelUsername}`, 
+                error: resolveError.message 
+            });
+        }
 
-        // Return channel information
-        return res.status(200).json({
-            id: channel.id,
-            title: channel.title,
-            username: channel.username,
-            participantsCount: channel.participantsCount,
-            // Add more channel details as needed
-        });
+        try {
+            // Fetch full channel information
+            const fullChannel = await client.invoke(
+                new Api.channels.GetFullChannel({
+                    channel: channel,
+                })
+            );
 
+            // Return comprehensive channel information
+            return res.status(200).json({
+                id: channel.id,
+                title: channel.title,
+                username: channel.username,
+                about: fullChannel.fullChat.about,
+                participantsCount: fullChannel.fullChat.participantsCount,
+                adminCount: fullChannel.fullChat.adminCount,
+                accessHash: channel.accessHash,
+                photo: {
+                    photoId: fullChannel.fullChat.chatPhoto?.photoId,
+                    dcId: fullChannel.fullChat.chatPhoto?.dcId,
+                },
+                restrictions: channel.restrictions,
+                defaultBannedRights: channel.defaultBannedRights,
+            });
+        } catch (infoError) {
+            console.error('Error fetching full channel info:', infoError.message);
+            return res.status(500).json({ 
+                message: 'Failed to fetch full channel information', 
+                error: infoError.message 
+            });
+        }
     } catch (error) {
-        console.error('Channel Info Error:', error);
+        console.error('Channel Info Error:', error.message);
         return res.status(500).json({ 
-            message: 'Failed to retrieve channel information', 
+            message: 'An unexpected error occurred', 
             error: error.message 
         });
     }
 };
+
 
 module.exports = {
     getChannelMessages,

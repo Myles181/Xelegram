@@ -24,17 +24,9 @@ const router = express.Router();
  *               channelUsername:
  *                 type: string
  *                 description: Username of the channel
- *               messageIds:
- *                 type: array
- *                 items:
- *                   type: number
- *                 description: Optional specific message IDs to retrieve
  *               limit:
  *                 type: number
  *                 description: Maximum number of messages to retrieve
- *               offset:
- *                 type: number
- *                 description: Offset for pagination
  *     responses:
  *       200:
  *         description: Successfully retrieved channel messages
@@ -50,7 +42,7 @@ router.route("/channel/messages").post(telegramController.getChannelMessages);
  * /t/api/channel/info:
  *   post:
  *     summary: Retrieve information about a Telegram channel
- *     description: Fetches basic information about a specified channel
+ *     description: Fetches detailed information about a specified channel
  *     tags:
  *       - Telegram
  *     requestBody:
@@ -71,6 +63,8 @@ router.route("/channel/messages").post(telegramController.getChannelMessages);
  *         description: Successfully retrieved channel information
  *       400:
  *         description: Invalid input parameters
+ *       404:
+ *         description: Channel not found
  *       500:
  *         description: Server error or Telegram API issue
  */
