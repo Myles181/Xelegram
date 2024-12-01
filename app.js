@@ -4,6 +4,11 @@ const cors = require("cors");
 
 const app = express();
 
+const swaggerUi = require("swagger-ui-express");
+const swaggerJsdoc = require("swagger-jsdoc");
+
+
+
 // Telegram Routers
 const authTelegramRouter = require("./routers/authRouter");
 const joinChannelTelegramRouter = require("./routers/joinChannelRouter");
@@ -31,12 +36,33 @@ app.use(
   })
 );
 
+// Swagger configuration
+const swaggerOptions = {
+  definition: {
+    openapi: "3.0.0",
+    info: {
+      title: "Telegram Clone API",
+      version: "1.0.0",
+      description: "API documentation for the Telegram Clone application",
+    },
+  },
+  apis: ["./routers/*.js"], // Path to your route files
+};
+
+const swaggerDocs = swaggerJsdoc(swaggerOptions);
+
+// Serve Swagger docs at /api-docs
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+
+
 // CORS Configuration
 const corsOptions = {
   origin: ["http://localhost:3000", "https://xelegram.onrender.com", "http://localhost:5501"], // Allowed origins
-  methods: ["GET", "POST", "PUT", "DELETE"], // Allowed HTTP methods
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Include OPTIONS method for preflight requests
   allowedHeaders: ["Content-Type", "Authorization"], // Allowed request headers
   credentials: true, // Allow cookies to be sent
+  preflightContinue: false, // Disable preflight continuation
+  optionsSuccessStatus: 204, // Return a 204 status for successful OPTIONS requests
 };
 
 // Apply CORS middleware
@@ -56,5 +82,14 @@ app.use("/t/api", getChatsRouter);
 
 // Error Handling Middleware
 app.use(errorController);
+
+app.get("/", (req, res) => {
+  res.send(`
+    <h1>Welcome to the Telegram Clone API</h1>
+    <p>Explore the API endpoints:</p>
+    <p><a href="/api-docs">View API Documentation</a></p>
+  `);
+});
+
 
 module.exports = app;
