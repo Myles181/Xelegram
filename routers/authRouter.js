@@ -87,6 +87,8 @@ router.route("/initiate").post(authController.initiateCode);
  *                 message:
  *                   type: string
  *                   example: Login successful
+ *                 userName:
+ *                    type: string
  *                 sessionString:
  *                   type: string
  *       400:
