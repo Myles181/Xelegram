@@ -1,5 +1,5 @@
 const express = require("express");
-const searchChannels = require("../../controllers/telegram/searchChannels.js");
+const searchChannels = require("../controllers/searchChannels.js");
 
 const router = express.Router();
 

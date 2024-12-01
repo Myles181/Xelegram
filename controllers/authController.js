@@ -1,66 +1,129 @@
-const User = require("../models/User");
-const ReqError = require("../utilities/ReqError");
-const jwt = require("jsonwebtoken");
-const catchAsyncError = require("../utilities/catchAsyncError");
+const { Api, TelegramClient } = require("telegram");
+const { StringSession } = require("telegram/sessions");
 
-const signToken = (user) => {
-  return jwt.sign({ id: user._id }, process.env.JWT_SECRET_KEY, {
-    expiresIn: process.env.JWT_EXPIRES_IN,
-  });
+
+const initiateCode = async (req, res) => {
+    try {
+            const { phoneNumber } = req.body;
+            
+            // Create a new StringSession for storing credentials
+            const sessionString = new StringSession('');
+            
+            const client = new TelegramClient(sessionString,
+                Number(Number(process.env.TELEGRAM_APP_ID)), 
+                process.env.TELEGRAM_APP_HASH, 
+                { connectionRetries: 5 }
+            );
+
+            await client.connect();
+    
+            const sendCodeResult = await client.invoke(
+                new Api.auth.SendCode({
+                  phoneNumber: phoneNumber,
+                  apiId: parseInt(Number(process.env.TELEGRAM_APP_ID)),
+                  apiHash: process.env.TELEGRAM_APP_HASH,
+                  settings: new Api.CodeSettings({
+                    allowFlashcall: true,
+                    currentNumber: true,
+                    allowAppHash: true,
+                    allowMissedCall: true,
+                    logoutTokens: [Buffer.from("arbitrary data here")],
+                  }),
+                })
+              );
+    
+            // Store temporary session information
+            let response = {
+                    phoneNumber: phoneNumber,
+                    phoneCodeHash: sendCodeResult.phoneCodeHash,
+                    sessionString: sessionString.save()
+                };
+    
+            return res.status(200).json({ 
+                message: 'Code sent successfully',
+                response: response
+            });
+
+        } catch (error) {
+            console.error('Code send error:', error);
+            return res.status(400).json({ 
+                message: 'Failed to send code', 
+                error: error.message 
+            });
+        }
 };
 
-const assignTokenToCookie = (user, res, statusCode) => {
-  const token = signToken(user);
+const verifyCode = async (req, res) => {
+    try {
+        const { phoneNumber, phoneCodeHash, sessionString, phoneCode } = req.body;
 
-  const cookieOptions = {
-    httpOnly: true,
-    secure: true,
-    expires: new Date(
-      Date.now() + parseInt(process.env.JWT_EXPIRES_IN) * 24 * 60 * 60 * 1000
-    ),
-  };
+        if (!phoneNumber || !phoneCodeHash) {
+            return res.status(400).json({ message: 'No pending verification' });
+        }
 
-  res.cookie("telegramToken", token, cookieOptions);
-  res.cookie("userId", user._id);
+        // Recreate the client with the stored session
+        const session = new StringSession(sessionString);
+        const client = new TelegramClient(session,
+            Number(process.env.TELEGRAM_APP_ID),
+            process.env.TELEGRAM_APP_HASH,
+            { connectionRetries: 5 }
+        );
 
-  user.password = undefined;
+        // Connect and sign in
+        await client.connect();
+        console.log(sessionString)
+        console.log(session)
+        console.log(phoneNumber)
+        console.log(phoneCode)
+        console.log(phoneCodeHash)
+        console.log(client)
+        const result = await client.invoke(
+            new Api.auth.SignIn({session,
+              phoneNumber: phoneNumber,
+              phoneCodeHash: phoneCodeHash,
+              phoneCode: phoneCode,
+            })
+          );
 
-  res.status(statusCode).json({
-    status: "success",
-    data: {
-      token,
-      user,
-    },
-  });
+        // Save the session string for future use
+        const finalSessionString = session.save();
+
+        return res.status(200).json({ 
+            message: 'Login successful',
+            sessionString: finalSessionString 
+        });
+    } catch (error) {
+        console.error('Verification Error:', error);
+        return res.status(400).json({ 
+            message: 'Verification failed', 
+            error: error.message 
+        });
+    }
 };
 
-exports.login = catchAsyncError(async (req, res, next) => {
-  // Takes in username and password
-  const { username, password } = req.body;
+const restoreSession = async (req, res) => {
+    const { sessionString } = req.body;
+    
+    const session = new StringSession(sessionString);
+    const client = new TelegramClient(session, 
+        Number(process.env.TELEGRAM_APP_ID), 
+        process.env.TELEGRAM_APP_HASH
+    );
 
-  // If there's no details given
-  if (!username) return next(new ReqError(400, "Username and Password needed"));
+    try {
+        await client.connect();
+        return res.status(200).json({ message: 'Session restored' });
+    } catch (error) {
+        return res.status(400).json({ 
+            message: 'Session restoration failed', 
+            error: error.message 
+        });
+    }
+};
 
-  const foundUser = await User.findOne({ username });
 
-  //   If username does not exist
-  if (!foundUser)
-    return next(new ReqError(400, "Username or Password incorrect"));
-
-  const passwordGivenCorrect = await foundUser.checkPasswordValidity(
-    password,
-    foundUser.password
-  );
-
-  //   If given password is incorrect
-  if (!passwordGivenCorrect)
-    return next(new ReqError(400, "Username or Password incorrect"));
-
-  assignTokenToCookie(foundUser, res, 200);
-});
-
-exports.register = catchAsyncError(async (req, res, next) => {
-  const newUser = await User.create(req.body);
-
-  assignTokenToCookie(newUser, res, 201);
-});
+module.exports = {
+    initiateCode,
+    verifyCode,
+    restoreSession
+};

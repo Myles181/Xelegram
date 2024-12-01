@@ -31,7 +31,7 @@ const Schema = new mongoose.Schema({
   avatar: {
     type: String,
     default:
-      "https://res.cloudinary.com/dlanhtzbw/image/upload/v1675343188/Telegram%20Clone/no-profile_aknbeq.jpg",
+      "https://res.cloudinary.com/dkvj3fbg9/image/upload/v1731436667/telegram_app/Telegram%20Clone/no-profile_aknbeq.jpg",
   },
   //   User contacts
   contacts: [contactSchema],
