@@ -20,6 +20,8 @@ const getChatsRouter = require("./routers/getChatsRouter");
 const ReqError = require("./utilities/ReqError");
 const errorController = require("./controllers/errorController");
 
+app.use(cors())
+
 // Session handler
 const session = require("express-session");
 
@@ -55,39 +57,6 @@ const swaggerDocs = swaggerJsdoc(swaggerOptions);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 
-// CORS Configuration
-// app.use(cors({
-//   origin: function (origin, callback) {
-//     const allowedOrigins = ["*"];
-    
-//     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-//       callback(null, true);
-//     } else {
-//       callback(new Error('Not allowed by CORS'));
-//     }
-//   },
-//   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-//   allowedHeaders: ['Content-Type', 'Authorization'],
-//   credentials: true,
-//   optionsSuccessStatus: 204
-// }));
-
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  if (req.method === 'OPTIONS') {
-      return res.sendStatus(200); // Preflight request
-  }
-  next();
-});
-
-// Allow requests from specific origins
-const corsOptions = {
-  origin: 'http://localhost:3000', // Replace with your frontend origin
-  credentials: true, // Allow credentials (cookies, authorization headers)
-};
 
 app.use(cors(corsOptions));
 
