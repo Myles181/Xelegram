@@ -26,7 +26,8 @@ const ReqError = require("./utilities/ReqError");
 const errorController = require("./controllers/errorController");
 
 const corsOptions ={
-  origin:'https://telegram-clone-wine.vercel.app', 
+  // origin:'https://telegram-clone-wine.vercel.app', 
+  origin:'http://localhost:3000', 
   credentials:true,            //access-control-allow-credentials:true
   optionSuccessStatus:200
 }
