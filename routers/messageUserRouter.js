@@ -5,7 +5,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /message:
+ * /t/api/user/message:
  *   post:
  *     summary: Send a message to a user or chat on Telegram
  *     description: Sends a message to the specified user or chat using the provided session string and message text.
@@ -88,6 +88,6 @@ const router = express.Router();
  *                   description: Error message.
  *                   example: "An error occurred while processing your request."
  */
-router.route("/message").post(messageUsers.messageUser);
+router.route("/user/message").post(messageUsers.messageUser);
 
 module.exports = router;

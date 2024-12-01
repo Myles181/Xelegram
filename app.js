@@ -13,9 +13,14 @@ const swaggerJsdoc = require("swagger-jsdoc");
 const authTelegramRouter = require("./routers/authRouter");
 const joinChannelTelegramRouter = require("./routers/joinChannelRouter");
 const messageUserTelegramRouter = require("./routers/messageUserRouter");
+const messageChannelTelegramRouter = require("./routers/messageChannelsRouter")
 const searchChannelTelegramRouter = require("./routers/searchChannelRouter");
 const searchUserTelegramRouter = require("./routers/searchUserRouter");
 const getChatsRouter = require("./routers/getChatsRouter");
+const getChannelChatsRouter = require("./routers/getChannelChatsRouter");
+const getUserChatsRouter = require("./routers/getUserChatsRouter");
+
+
 
 const ReqError = require("./utilities/ReqError");
 const errorController = require("./controllers/errorController");
@@ -74,6 +79,9 @@ app.use("/t/api", messageUserTelegramRouter);
 app.use("/t/api", searchChannelTelegramRouter);
 app.use("/t/api", searchUserTelegramRouter);
 app.use("/t/api", getChatsRouter);
+app.use("/t/api", getChannelChatsRouter);
+app.use("/t/api", getUserChatsRouter);
+app.use("/t/api", messageChannelTelegramRouter);
 
 // Error Handling Middleware
 app.use(errorController);

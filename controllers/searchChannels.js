@@ -18,7 +18,7 @@ const searchChannels = async (req, res) => {
         const results = await client.invoke(
             new Api.contacts.Search({
                 q: searchQuery,
-                limit: 50
+                limit: 20
             })
         );
 

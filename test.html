@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CORS Test</title>
+</head>
+<body>
+    <h1>Test API CORS</h1>
+    <button id="testButton">Test API</button>
+    <div id="response"></div>
+
+    <script>
+        document.getElementById("testButton").addEventListener("click", async () => {
+            const apiUrl = "https://xelegram.onrender.com/t/api/initiate";  // Your API URL
+
+            // Sample request body for POST
+            const requestBody = {
+                phoneNumber: "+2347048568350"
+            };
+
+            try {
+                // Send POST request to the API
+                const response = await fetch(apiUrl, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(requestBody),
+                    credentials: "include"  // Ensure credentials are sent if required
+                });
+
+                const result = await response.json();
+                document.getElementById("response").textContent = JSON.stringify(result, null, 2);
+                console.log("API response:", result);
+            } catch (error) {
+                console.error("Error:", error);
+                document.getElementById("response").textContent = `Error: ${error.message}`;
+            }
+        });
+    </script>
+</body>
+</html>

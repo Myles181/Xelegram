@@ -5,7 +5,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /search:
+ * /t/api/search:
  *   post:
  *     summary: Search for Telegram users
  *     description: Allows an authenticated Telegram user to search for users based on a query (e.g., first name, last name, username).

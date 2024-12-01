@@ -5,7 +5,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /channel/search:
+ * /t/api/channel/search:
  *   post:
  *     summary: Search for Telegram channels
  *     description: Allows an authenticated Telegram user to search for channels by a search query.

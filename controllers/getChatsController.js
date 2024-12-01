@@ -20,7 +20,7 @@ const getTelegramChats = async (sessionString) => {
                 offsetDate: 0,
                 offsetId: 0,
                 offsetPeer: new Api.InputPeerEmpty(),
-                limit: 100, // Adjust as needed
+                limit: 20, // Adjust as needed
                 hash: 0,
             })
         );
