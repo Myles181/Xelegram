@@ -57,10 +57,6 @@ const swaggerDocs = swaggerJsdoc(swaggerOptions);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 
-
-app.use(cors(corsOptions));
-
-
 // Middleware
 app.use(express.json({ limit: "50mb" }));
 app.use(cookieParser());
