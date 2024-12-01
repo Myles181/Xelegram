@@ -20,7 +20,13 @@ const getChatsRouter = require("./routers/getChatsRouter");
 const ReqError = require("./utilities/ReqError");
 const errorController = require("./controllers/errorController");
 
-app.use(cors())
+const corsOptions ={
+  origin:'http://localhost:3000', 
+  credentials:true,            //access-control-allow-credentials:true
+  optionSuccessStatus:200
+}
+app.use(cors(corsOptions));
+
 
 // Session handler
 const session = require("express-session");
