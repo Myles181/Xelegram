@@ -51,6 +51,10 @@ const router = express.Router();
  *                         type: string
  *                         description: Type of entity ('User', 'Chat', 'Channel').
  *                         example: "User"
+ *                       isMember:
+ *                         type: string
+ *                          description: Identify if a user is a member of a channel. If type is a User then member will by default be true
+ *                          example: true
  *                       unreadMessagesCount:
  *                         type: integer
  *                         description: Number of unread messages in the chat (default is 0).
