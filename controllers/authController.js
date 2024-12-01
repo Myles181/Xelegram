@@ -84,13 +84,18 @@ const verifyCode = async (req, res) => {
               phoneCode: phoneCode,
             })
           );
+        
+          // Extract user details
+        const user = result.user; // This contains the user's information
+        const username = user.username || null; // Username if available, else null
 
         // Save the session string for future use
         const finalSessionString = session.save();
 
         return res.status(200).json({ 
             message: 'Login successful',
-            sessionString: finalSessionString 
+            userName: username,
+            sessionString: finalSessionString
         });
     } catch (error) {
         console.error('Verification Error:', error);
