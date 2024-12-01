@@ -29,6 +29,7 @@
     "dotenv": "^16.0.3",
     "express": "^4.21.1",
     "express-session": "^1.18.1",
+    "js-cookie": "^3.0.5",
     "jsonwebtoken": "^8.5.1",
     "lucide-react": "^0.462.0",
     "mongoose": "^6.7.1",
@@ -36,7 +37,8 @@
     "react-scripts": "^5.0.1",
     "socket.io": "^4.5.3",
     "tailwind-merge": "^2.5.5",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "telegram": "^2.26.8"
   },
   "devDependencies": {
     "nodemon": "^3.1.7"
