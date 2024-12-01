@@ -7,9 +7,9 @@ const joinChannel = async (req, res) => {
     try {
         const { sessionString, groupUsername } = req.body;
         
-        const stringSession = new StringSession(sessionString);
-        const client = new TelegramClient(stringSession, 
-            process.env.TELEGRAM_APP_ID, 
+        const session = new StringSession(sessionString);
+        const client = new TelegramClient(session, 
+            Number(process.env.TELEGRAM_APP_ID), 
             process.env.TELEGRAM_APP_HASH
         );
 

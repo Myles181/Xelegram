@@ -7,10 +7,10 @@ const initiateCode = async (req, res) => {
             const { phoneNumber } = req.body;
             
             // Create a new StringSession for storing credentials
-            const stringSession = new StringSession('');
+            const sessionString = new StringSession('');
             
-            const client = new TelegramClient(stringSession,
-                process.env.TELEGRAM_APP_ID, 
+            const client = new TelegramClient(sessionString,
+                Number(Number(process.env.TELEGRAM_APP_ID)), 
                 process.env.TELEGRAM_APP_HASH, 
                 { connectionRetries: 5 }
             );
@@ -20,7 +20,7 @@ const initiateCode = async (req, res) => {
             const sendCodeResult = await client.invoke(
                 new Api.auth.SendCode({
                   phoneNumber: phoneNumber,
-                  apiId: process.env.TELEGRAM_APP_ID,
+                  apiId: parseInt(Number(process.env.TELEGRAM_APP_ID)),
                   apiHash: process.env.TELEGRAM_APP_HASH,
                   settings: new Api.CodeSettings({
                     allowFlashcall: true,
@@ -36,7 +36,7 @@ const initiateCode = async (req, res) => {
             let response = {
                     phoneNumber: phoneNumber,
                     phoneCodeHash: sendCodeResult.phoneCodeHash,
-                    stringSession: stringSession.save()
+                    sessionString: sessionString.save()
                 };
     
             return res.status(200).json({ 
@@ -55,24 +55,30 @@ const initiateCode = async (req, res) => {
 
 const verifyCode = async (req, res) => {
     try {
-        const { phoneNumber, phoneCodeHash, stringSession, phoneCode } = req.body;
+        const { phoneNumber, phoneCodeHash, sessionString, phoneCode } = req.body;
 
         if (!phoneNumber || !phoneCodeHash) {
             return res.status(400).json({ message: 'No pending verification' });
         }
 
         // Recreate the client with the stored session
-        const session = new StringSession(stringSession);
+        const session = new StringSession(sessionString);
         const client = new TelegramClient(session,
-            process.env.TELEGRAM_APP_ID,
+            Number(process.env.TELEGRAM_APP_ID),
             process.env.TELEGRAM_APP_HASH,
             { connectionRetries: 5 }
         );
 
         // Connect and sign in
         await client.connect();
+        console.log(sessionString)
+        console.log(session)
+        console.log(phoneNumber)
+        console.log(phoneCode)
+        console.log(phoneCodeHash)
+        console.log(client)
         const result = await client.invoke(
-            new Api.auth.SignIn({
+            new Api.auth.SignIn({session,
               phoneNumber: phoneNumber,
               phoneCodeHash: phoneCodeHash,
               phoneCode: phoneCode,
@@ -98,9 +104,9 @@ const verifyCode = async (req, res) => {
 const restoreSession = async (req, res) => {
     const { sessionString } = req.body;
     
-    const stringSession = new StringSession(sessionString);
-    const client = new TelegramClient(stringSession, 
-        process.env.TELEGRAM_APP_ID, 
+    const session = new StringSession(sessionString);
+    const client = new TelegramClient(session, 
+        Number(process.env.TELEGRAM_APP_ID), 
         process.env.TELEGRAM_APP_HASH
     );
 

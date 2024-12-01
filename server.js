@@ -9,10 +9,6 @@ const dotenvPath = path.join(__dirname, ".env");
 dotenv.config({ path: dotenvPath });
 
 
-console.log(process.env)
-console.log("API_ID:", process.env.TELEGRAM_APP_ID);
-console.log("API_HASH:", process.env.TELEGRAM_APP_HASH);
-
 // Set the strictQuery option before connecting to the database
 mongoose.set('strictQuery', false);
 
@@ -20,7 +16,7 @@ mongoose.set('strictQuery', false);
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("Database connected..."))
-  .catch((error) => console.log("An error occured..."));
+  .catch((error) => console.log("Database Not connected..."));
 
 // Serve client folder
 app.use(express.static(path.join(__dirname, "client", "build")));
