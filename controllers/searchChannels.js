@@ -22,7 +22,7 @@ const searchChannels = async (req, res) => {
             })
         );
 
-        // Filter and transform channels
+        // Filter and transform channels        
         const channels = await Promise.all(results.chats
             .filter(chat => chat.className === 'Channel')
             .map(async (channel) => {
@@ -35,6 +35,21 @@ const searchChannels = async (req, res) => {
                             channel: channel.id
                         })
                     );
+
+                    // Check if the current user is a member
+                    try {
+                        let isMember;
+                        const result = await client.invoke(
+                            new Api.channels.GetParticipant({
+                              channel: chat.username,
+                              participant: (await client.getMe()).username,
+                            })
+                          );
+                        if (result.users) { isMember = true}
+                    } catch {
+                        // If getting messages fails, use alternative membership check
+                        isMember = false;
+                    }
                     
                     if (photo.fullChat.chatPhoto) {
                         channelPicture = {
@@ -52,6 +67,7 @@ const searchChannels = async (req, res) => {
                     title: channel.title || '',
                     username: channel.username || '',
                     participants: channel.participantsCount || 0,
+                    isMember: isMember,
                     channelPicture: channelPicture
                 };
             })

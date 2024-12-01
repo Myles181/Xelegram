@@ -1,6 +1,7 @@
 const { TelegramClient } = require("telegram");
 const { StringSession } = require("telegram/sessions");
 const { Api } = require("telegram");
+const session = require("express-session");
 
 const getTelegramChats = async (sessionString) => {
     try {
@@ -42,17 +43,13 @@ const getTelegramChats = async (sessionString) => {
                     
                     // Check if the current user is a member
                     try {
-                        const testMessages = await client.invoke(
-                            new Api.messages.GetHistory({
-                                peer: chat,
-                                limit: 1,
-                                offsetId: 0,
-                                offsetDate: 0,
-                                addOffset: 0,
-                                hash: BigInt(0)
+                        const result = await client.invoke(
+                            new Api.channels.GetParticipant({
+                              channel: chat.username,
+                              participant: (await client.getMe()).username,
                             })
-                        );
-                        isMember = testMessages.messages.length > 0;
+                          );
+                        if (result.users) { isMember = true}
                     } catch {
                         // If getting messages fails, use alternative membership check
                         isMember = false;
