@@ -58,11 +58,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 // CORS Configuration
 app.use(cors({
   origin: function (origin, callback) {
-    const allowedOrigins = [
-      'http://localhost:3000', 
-      'https://xelegram.onrender.com', 
-      'http://localhost:5501'
-    ];
+    const allowedOrigins = ["*"];
     
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
